@@ -1,0 +1,142 @@
+/ssd_scratch/cvit/adhiraj_deshmukh/anlp_project/EditNTS
+**********
+read 30006 words from vocab file
+Loading Glove embeddings
+0 words out of 30006 has embeddings in the glove file
+**********
+Namespace(batch_size=128, data_path='./outputs/', device=0, epochs=25, hidden=200, load_model=None, lr=0.0001, max_seq_len=100, store_dir='./checkpoints', vocab_path='./vocab_data/', vocab_size=30000)
+generating config
+init editNTS model
+load pre-trained embeddings
+Epoch: 0, Step: 100, Loss: 2.6268
+Epoch: 0, Step: 200, Loss: 0.7593
+Epoch: 0, Step: 300, Loss: 0.7558
+Epoch: 0, Step: 400, Loss: 0.7568
+Epoch: 0, Step: 500, Loss: 0.7551
+Epoch: 0, Step: 600, Loss: 0.7550
+Epoch: 0, Step: 700, Loss: 0.7580
+Epoch: 0, Step: 800, Loss: 0.7584
+Epoch: 0, Step: 900, Loss: 0.7542
+Epoch: 0, Step: 1000, Loss: 0.7581
+Epoch: 0, Step: 1100, Loss: 0.7574
+Epoch: 0, Step: 1200, Loss: 0.7559
+Epoch: 0, Step: 1300, Loss: 0.7561
+Epoch: 0, Step: 1400, Loss: 0.7563
+Epoch: 0, Step: 1500, Loss: 0.7560
+Epoch: 0, Step: 1600, Loss: 0.7547
+Epoch: 0, Step: 1700, Loss: 0.7573
+Epoch: 0, Step: 1800, Loss: 0.7561
+Epoch: 0, Step: 1900, Loss: 0.7302
+Epoch: 0, Step: 2000, Loss: 0.4163
+Epoch: 0, Step: 2100, Loss: 0.3696
+Epoch: 0, Step: 2200, Loss: 0.3611
+Epoch: 0, Step: 2300, Loss: 0.3531
+Epoch: 0, Step: 2400, Loss: 0.3452
+Epoch: 0, Step: 2500, Loss: 0.3416
+Epoch: 0, Step: 2600, Loss: 0.3399
+Epoch: 0, Step: 2700, Loss: 0.3338
+Epoch: 0, Step: 2800, Loss: 0.3330
+Epoch: 0, Step: 2900, Loss: 0.3298
+Epoch: 0, Step: 3000, Loss: 0.3316
+Epoch: 0, Step: 3100, Loss: 0.3279
+Epoch: 0, Step: 3200, Loss: 0.3281
+Epoch: 0, Step: 3300, Loss: 0.3232
+Epoch: 0, Step: 3400, Loss: 0.3236
+Epoch: 0, Step: 3500, Loss: 0.3212
+Epoch: 0, Step: 3600, Loss: 0.3201
+Epoch: 0, Step: 3700, Loss: 0.3174
+Doing tokenized evaluation
+loss_with_teacher_forcing 0.4379149699672213
+epoch 0, Dev loss: 0.4379, Bleu score: 0.3800, Sari: 0.2589 
+
+Epoch: 1, Step: 100, Loss: 0.3180
+Epoch: 1, Step: 200, Loss: 0.3156
+Epoch: 1, Step: 300, Loss: 0.3138
+Epoch: 1, Step: 400, Loss: 0.3154
+Epoch: 1, Step: 500, Loss: 0.3137
+Epoch: 1, Step: 600, Loss: 0.3114
+Epoch: 1, Step: 700, Loss: 0.3131
+Epoch: 1, Step: 800, Loss: 0.3104
+Epoch: 1, Step: 900, Loss: 0.3087
+Epoch: 1, Step: 1000, Loss: 0.3101
+Epoch: 1, Step: 1100, Loss: 0.3076
+Epoch: 1, Step: 1200, Loss: 0.3094
+Epoch: 1, Step: 1300, Loss: 0.3079
+Epoch: 1, Step: 1400, Loss: 0.3065
+Epoch: 1, Step: 1500, Loss: 0.3069
+Epoch: 1, Step: 1600, Loss: 0.3065
+Epoch: 1, Step: 1700, Loss: 0.3061
+Epoch: 1, Step: 1800, Loss: 0.3042
+Epoch: 1, Step: 1900, Loss: 0.3074
+Epoch: 1, Step: 2000, Loss: 0.3032
+Epoch: 1, Step: 2100, Loss: 0.3027
+Epoch: 1, Step: 2200, Loss: 0.3021
+Epoch: 1, Step: 2300, Loss: 0.3038
+Epoch: 1, Step: 2400, Loss: 0.3051
+Epoch: 1, Step: 2500, Loss: 0.3016
+Epoch: 1, Step: 2600, Loss: 0.3019
+Epoch: 1, Step: 2700, Loss: 0.3017
+Epoch: 1, Step: 2800, Loss: 0.3010
+Epoch: 1, Step: 2900, Loss: 0.3015
+Epoch: 1, Step: 3000, Loss: 0.3004
+Epoch: 1, Step: 3100, Loss: 0.3014
+Epoch: 1, Step: 3200, Loss: 0.2996
+Epoch: 1, Step: 3300, Loss: 0.3023
+Epoch: 1, Step: 3400, Loss: 0.3009
+Epoch: 1, Step: 3500, Loss: 0.2979
+Epoch: 1, Step: 3600, Loss: 0.2961
+Epoch: 1, Step: 3700, Loss: 0.2978
+Doing tokenized evaluation
+loss_with_teacher_forcing 0.4376643389380953
+epoch 1, Dev loss: 0.4377, Bleu score: 0.4006, Sari: 0.2137 
+
+Epoch: 2, Step: 100, Loss: 0.2973
+Epoch: 2, Step: 200, Loss: 0.2957
+Epoch: 2, Step: 300, Loss: 0.2968
+Epoch: 2, Step: 400, Loss: 0.2941
+Epoch: 2, Step: 500, Loss: 0.2932
+Epoch: 2, Step: 600, Loss: 0.2961
+Epoch: 2, Step: 700, Loss: 0.2936
+Epoch: 2, Step: 800, Loss: 0.2933
+Epoch: 2, Step: 900, Loss: 0.2967
+Epoch: 2, Step: 1000, Loss: 0.2964
+Epoch: 2, Step: 1100, Loss: 0.2967
+Epoch: 2, Step: 1200, Loss: 0.2940
+Epoch: 2, Step: 1300, Loss: 0.2952
+Epoch: 2, Step: 1400, Loss: 0.2946
+Epoch: 2, Step: 1500, Loss: 0.2948
+Epoch: 2, Step: 1600, Loss: 0.2936
+Epoch: 2, Step: 1700, Loss: 0.2930
+Epoch: 2, Step: 1800, Loss: 0.2925
+Epoch: 2, Step: 1900, Loss: 0.2891
+Epoch: 2, Step: 2000, Loss: 0.2910
+Epoch: 2, Step: 2100, Loss: 0.2922
+Epoch: 2, Step: 2200, Loss: 0.2945
+Epoch: 2, Step: 2300, Loss: 0.2928
+Epoch: 2, Step: 2400, Loss: 0.2916
+Epoch: 2, Step: 2500, Loss: 0.2887
+Epoch: 2, Step: 2600, Loss: 0.2888
+Epoch: 2, Step: 2700, Loss: 0.2913
+Epoch: 2, Step: 2800, Loss: 0.2913
+Epoch: 2, Step: 2900, Loss: 0.2923
+Epoch: 2, Step: 3000, Loss: 0.2890
+Epoch: 2, Step: 3100, Loss: 0.2916
+Epoch: 2, Step: 3200, Loss: 0.2881
+Epoch: 2, Step: 3300, Loss: 0.2901
+Epoch: 2, Step: 3400, Loss: 0.2917
+Epoch: 2, Step: 3500, Loss: 0.2900
+Epoch: 2, Step: 3600, Loss: 0.2914
+Epoch: 2, Step: 3700, Loss: 0.2898
+Doing tokenized evaluation
+loss_with_teacher_forcing 0.42247988818389065
+epoch 2, Dev loss: 0.4225, Bleu score: 0.4086, Sari: 0.2073 
+
+Epoch: 3, Step: 100, Loss: 0.2884
+Epoch: 3, Step: 200, Loss: 0.2867
+Epoch: 3, Step: 300, Loss: 0.2865
+Epoch: 3, Step: 400, Loss: 0.2887
+Epoch: 3, Step: 500, Loss: 0.2895
+Epoch: 3, Step: 600, Loss: 0.2885
+Epoch: 3, Step: 700, Loss: 0.2867
+Epoch: 3, Step: 800, Loss: 0.2892
+Epoch: 3, Step: 900, Loss: 0.2870

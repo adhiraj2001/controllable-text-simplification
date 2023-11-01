@@ -1,0 +1,72 @@
+Without splitting
+====================================
+0: A romantic friendship, passionate friendship, or affectionate friendship is a very close but typically non-sexual relationship between friends, often involving a degree of physical and emotional closeness.
+1: A romantic friendship, passionate friendship, or affectionate friendship is a very close but usually non-sexual relationship between friends, often involving a degree of physical and emotional closeness.
+2: A romantic friendship, passionate friendship, or affectionate friendship is a very close but typically non-sexual relationship between friends. SEP> It often involves a degree of physical and emotional closeness.
+3: A romantic friendship, passionate friendship, or affectionate friendship is a very close but usually non-sexual relationship between friends. SEP> It often involves a degree of physical and emotional closeness.
+4: A romantic friendship, passionate friendship, or affectionate friendship is a very close but typically non-sexual relationship between friends, often involving a degree of physical closeness beyond that which is common in the Western societies.
+5: A romantic friendship, passionate friendship, or affectionate friendship is a very close but usually non-sexual relationship between friends.
+6: A romantic friendship, passionate friendship, or affectionate friendship is a very close but typically non-sexual relationship between friends.
+7: A romantic friendship, passionate friendship, or affectionate friendship is a close but often non-sexual relationship between friends.
+8: A romantic friendship, passionate friendship, or affectionate friendship is a close but usually non-sexual relationship between friends.
+9: A romantic friendship, passionate friendship, or affectionate friendship is a relationship between friends.
+====================================
+0: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based Junior A hockey league that belongs to the Canadian Junior Hockey League ( CJHL ).
+1: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based ice hockey league that belongs to the Canadian Junior Hockey League ( CJHL ).
+2: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based junior A hockey league that belongs to the Canadian Junior Hockey League ( CJHL ).
+3: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based junior hockey league that belongs to the Canadian Junior Hockey League ( CJHL ).
+4: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based Junior A ice hockey league that belongs to the Canadian Junior Hockey League.
+5: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based Junior A ice hockey league.
+6: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based Junior A hockey league. SEP> It belongs to the Canadian Junior Hockey League.
+7: The Alberta Junior Hockey League ( AJHL ) is an Alberta-based Junior A hockey league.
+8: The Alberta Junior Hockey League ( AJHL ) is a Canadian junior hockey league.
+9: The Alberta Junior Hockey League ( AJHL ) is a Canadian ice hockey league.
+====================================
+0: A switchgear is a combination of electrical switches, fuses or circuit breakers used to control, protect or isolate electrical equipment.
+1: A switchgear is a combination of electrical switches, fuses or circuit breakers used to control, protect and isolate electrical equipment.
+2: In an electric power system, switchgear is composed of electrical disconnect switches, fuses or circuit breakers used to control, protect and isolate electrical equipment.
+3: A switchgear is a combination of electrical switches, fuses and circuit breakers used to control, protect or isolate electrical equipment.
+4: A switchgear is a combination of electrical switches, fuses and circuit breakers used to control, protect and isolate electrical equipment.
+5: In an electric power system, switchgear is made of electrical disconnect switches, fuses or circuit breakers used to control, protect and isolate electrical equipment.
+6: A switchgear is a combination of electrical switches, fuses or circuit breakers used to control and isolate electrical equipment.
+7: A switchgear is a combination of electrical switches, fuses or circuit breakers used to control or isolate electrical equipment.
+8: In an electric power system, switchgear is composed of electrical disconnect switches, fuses or circuit breakers used to control, protect or isolate electrical equipment.
+9: In an electric power system, switchgear is a combination of electrical switches, fuses or circuit breakers used to control and isolate electrical equipment.
+====================================
+
+with splitting
+====================================
+====================================
+0: Passionate friendship is a close but non-sexual relationship between friends.
+1: Passionate friendship is a close relationship between friends.
+2: Passionate friendship is a close but non-sexual relationship between friends and family.
+3: Passionate friendship is a relationship between friends.
+4: Passionate friendship is a close but nonsexual relationship between friends.
+5: Passionate friendship is a close and non-sexual relationship between friends.
+6: Passionate friendship is a close but non-sexual relationship between friends and friends.
+7: Passionate friendship is a close friendship between friends.
+8: Passionate friendship is a relationship between friends and family.
+9: Passionate friendship is a close relationship between friends and family.
+====================================
+0: A hockey league belongs to the Canadian Junior Hockey League.
+1: A hockey league is part of the Canadian Junior Hockey League.
+2: A hockey league belongs to the Canadian Junior Hockey League ( CHL ).
+3: A hockey league belongs to the Canadian Junior Hockey League ( CHL).
+4: A hockey league belongs to the Canadian Junior Hockey League ( NHL ).
+5: A hockey league belongs to the Canadian Junior Hockey League ( NHL).
+6: A hockey league belongs to the Canadian Junior Hockey League.
+7: A hockey league belongs to the Canadian Junior Hockey League (CHL).
+8: A hockey league belongs to the Canadian junior hockey league.
+9: A hockey league belongs to the Canadian Junior Hockey League (CHL ).
+====================================
+0: Electrical switches, fuses or circuit breakers were used to control, protect or isolate electrical equipment.
+1: Electrical switches, fuses and circuit breakers were used to control, protect or isolate electrical equipment.
+2: Electrical switches, fuses or circuit breaks were used to control, protect or isolate electrical equipment.
+3: Electrical switches, fuses or circuit breakers were used to control, protect or isolate electrical equipment.
+4: Electrical switches, fuses or circuit breakers were used to control, protect and isolate electrical equipment.
+5: Electric switches, fuses or circuit breakers were used to control, protect or isolate electrical equipment.
+6: Electrical switches, fuseries or circuit breakers were used to control, protect or isolate electrical equipment.
+7: Electrical switches, fuses or circuit breakers were used to control electrical equipment.
+8: Electrical switches, fuses or circuit breakers were used to control and protect electrical equipment.
+9: Electrical switches were used to control, protect or isolate electrical equipment.
+===================================

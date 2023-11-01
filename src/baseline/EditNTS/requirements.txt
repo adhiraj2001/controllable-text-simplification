@@ -1,0 +1,14 @@
+# mamba create -n edit-nts python=2.7
+# mamba create -n edit-nts python=3.7
+
+
+numpy==1.15.0
+pandas
+
+nltk
+
+# # conda install pytorch=0.4.1.post2 cuda90 -c pytorch
+# pip install torch==0.4.1.post2 -f https://download.pytorch.org/whl/cu92/torch_stable.html
+
+# python3 -m pip uninstall pandas
+# python3 -m pip install --upgrade pandas
