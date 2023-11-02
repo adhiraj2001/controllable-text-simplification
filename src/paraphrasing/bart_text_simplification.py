@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.preprocessing
 import torch
 import torch.nn as nn
-from google.transliteration import transliterate_word
+# from google.transliteration import transliterate_word
 import klib
 import os
 import csv
@@ -27,14 +27,18 @@ torch.cuda.is_available()
 
 # %%
 
+abs_root = '/ssd_scratch/cvit/adhiraj_deshmukh'
+abs_code = f'{abs_root}/ANLP-Project'
+abs_data = f'{abs_code}/data'
 
 # %%
 #load dataset
 
 colnames = ['source', 'target']
-input_file = "train.tsv"
+# input_file = "train.tsv"
+input_file = f"{abs_data}/train.tsv"
 train = pd.read_csv(input_file, sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
-val = pd.read_csv("valid.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
+val = pd.read_csv(f"{abs_data}/valid.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
 
 # %%
 #data cleaning 
@@ -59,9 +63,9 @@ print(len(val))
 print(len(test))
 
 #save train, val, test
-train.to_csv('/ssd_scratch/cvit/aparna/train.csv', index=False)
-val.to_csv('/ssd_scratch/cvit/aparna/val.csv', index=False)
-test.to_csv('/ssd_scratch/cvit/aparna/test.csv', index=False)
+train.to_csv(f'{abs_data}/train.csv', index=False)
+val.to_csv(f'{abs_data}/val.csv', index=False)
+test.to_csv(f'{abs_data}/test.csv', index=False)
 
 
 # %%
@@ -69,7 +73,7 @@ train.columns
 
 # %%
 #tokenize
-tokenizer = BartTokenizer.from_pretrained('facebook/bart-base',cahe_dir='/ssd_scratch/cvit/aparna/bart_base')
+tokenizer = BartTokenizer.from_pretrained('facebook/bart-base', cache_dir=f'{abs_root}/bart_base')
 
 # Load pre-trained XLM model
 #tokenizer = XLMTokenizer.from_pretrained('xlm-mlm-en-2048')
@@ -96,45 +100,58 @@ print('Token IDs: ', tokenizer.convert_tokens_to_ids(tokenizer.tokenize(train['s
 
 # %%
 maxlen = 512
-def tokenize_df(df):
-    input = tokenizer(df['source'], padding='max_length', truncation=True, return_tensors="pt", max_length=maxlen)
-    target= tokenizer(df['target'], padding='max_length', truncation=True, return_tensors="pt", max_length=maxlen)
-    input_ids = input['input_ids']
-    attention_mask = input['attention_mask']
-    target_ids = target['input_ids']
-    target_attention_mask = target['attention_mask']
-    decoder_input_ids = target_ids.clone()
-    #convert to tensors
-    input_ids = torch.tensor(input_ids).squeeze()
-    attention_mask = torch.tensor(attention_mask).squeeze()
-    target_ids = torch.tensor(target_ids).squeeze()
-    target_attention_mask = torch.tensor(target_attention_mask).squeeze()
-   # decoder_input_ids = torch.tensor(decoder_input_ids)
-    
-    return {
-        'input_ids': input_ids,
-        'attention_mask': attention_mask,
-        'labels': target_ids,
-        #'decoder_input_ids': decoder_input_ids,
-        #'decoder_attention_mask': target_attention_mask
-    }
 
-train = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/train.csv',cache_dir='/ssd_scratch/cvit/aparna/bart_data')
-val = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/val.csv',cache_dir='/ssd_scratch/cvit/aparna/bart_data')
-test = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/test.csv',cache_dir='/ssd_scratch/cvit/aparna/bart_data')
-train = train.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
-val = val.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
-test = test.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
+prefix = "summarize: "
+max_input_length = 512
+max_target_length = 64
+
+def clean_text(text):
+  sentences = nltk.sent_tokenize(text.strip())
+  sentences_cleaned = [s for sent in sentences for s in sent.split("\n")]
+  sentences_cleaned_no_titles = [sent for sent in sentences_cleaned
+                                 if len(sent) > 0 and
+                                 sent[-1] in string.punctuation]
+  text_cleaned = "\n".join(sentences_cleaned_no_titles)
+  return text_cleaned
+
+def preprocess_data(examples):
+  texts_cleaned = [clean_text(text) for text in examples["source"]]
+  inputs = [prefix + text for text in texts_cleaned]
+  model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
+
+  # Setup the tokenizer for targets
+  with tokenizer.as_target_tokenizer():
+    labels = tokenizer(examples["target"], max_length=max_target_length, 
+                       truncation=True)
+
+  model_inputs["labels"] = labels["input_ids"]
+  model_inputs["decoder_input_ids"] = labels["input_ids"] 
+  model_inputs["decoder_attention_ids"] = labels["attention_ids"]
+  return model_inputs
+
+train = load_dataset('csv', data_files=f'{abs_data}/train.csv',cache_dir=f'{abs_root}/t5_data')
+val = load_dataset('csv', data_files=f'{abs_data}/val.csv',cache_dir=f'{abs_root}/t5_data')
+test = load_dataset('csv', data_files=f'{abs_data}/test.csv',cache_dir=f'{abs_root}/t5_data')
+
+train["validation"] = val["train"]
+train["test"] = test["train"]
+
+# medium_datasets["train"] = medium_datasets["train"].shuffle().select(range(100000))
+# medium_datasets["validation"] = medium_datasets["validation"].shuffle().select(range(1000))
+# medium_datasets["test"] = medium_datasets["test"].shuffle().select(range(1000))
+
+train["train"] = train["train"].shuffle().select(range(100000))
+train["validation"] = train["validation"].shuffle().select(range(1000))
+train["test"] = train["test"].shuffle().select(range(1000))
+print(train)
+train= train.map(
+    preprocess_data, 
+    batched=True,
+    remove_columns=["source", "target"], batch_size=128
+)
 
 
-# %%
-train
-#get sample 
-sample = train['train'][0]
-sample
-#print shapes
-print(len(sample['input_ids']))
-print(len(sample['attention_mask']))
+print(train)
 
 os.environ["WANDB_DISABLED"] = "false"
 
@@ -150,7 +167,7 @@ os.environ["WANDB_DISABLED"] = "false"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #model =  BartForConditionalGeneration.from_pretrained('bert-base-multilingual-cased')
 
-model = BartForConditionalGeneration.from_pretrained("facebook/bart-base",cache_dir='/ssd_scratch/cvit/aparna/bart_base').to(device)
+model = BartForConditionalGeneration.from_pretrained("facebook/bart-base", cache_dir=f'{abs_root}/bart_base').to(device)
 
 # model.encoder.resize_token_embeddings(len(tokenizer))
 # model.decoder.resize_token_embeddings(len(tokenizer))
@@ -162,28 +179,53 @@ model.resize_token_embeddings(len(tokenizer))
 
 #training args
 
-
 training_args = Seq2SeqTrainingArguments(
-  output_dir = "/ssd_scratch/cvit/aparna/mbart_simplification",
+  output_dir = f"{abs_root}/mbart_simplification",
   log_level = "error",
   num_train_epochs = 10,
   learning_rate = 5e-4,
   lr_scheduler_type = "linear",
-  warmup_steps = 90,
+  # warmup_steps = 90,
+  warmup_steps = 0,
   optim = "adafactor",
   weight_decay = 0.01,
   per_device_train_batch_size =2,
   per_device_eval_batch_size = 1,
   gradient_accumulation_steps = 16,
   evaluation_strategy = "steps",
-  eval_steps = 100,
-  predict_with_generate=True,
+  # eval_steps = 100,
+  eval_steps = 500,
+  # predict_with_generate=True,
+  predict_with_generate=False,
   generation_max_length = 128,
   save_steps = 500,
   logging_steps = 10,
   push_to_hub = False
 )
 
+print(f'encoder: {model.model.encoder}')
+print()
+
+print(f'decoder: {model.model.decoder}')
+print()
+
+# for i, param in enumerate(model.model.encoder.parameters()):
+#     if i < (len(model.model.encoder.layer) - 2):
+#         param.requires_grad = False
+#
+# for i, param in enumerate(model.model.decoder.parameters()):
+#     if i < (len(model.model.decoder.layer) - 2):
+#         param.requires_grad = False
+
+
+# Freeze the first n-2 layers
+for i in range(len(model.model.encoder.layers) - 2):
+    for param in model.model.encoder.layers[i].parameters():
+        param.requires_grad = False
+
+for i in range(len(model.model.decoder.layers) - 2):
+    for param in model.model.decoder.layers[i].parameters():
+        param.requires_grad = False
 
 #trainer
 trainer = Seq2SeqTrainer(
@@ -200,6 +242,6 @@ trainer = Seq2SeqTrainer(
 trainer.train()
 
 #save model
-trainer.save_model("/ssd_scratch/cvit/aparna/mbart_simplification_final")
+trainer.save_model(f"{abs_root}/mbart_simplification_final")
 
 # %%

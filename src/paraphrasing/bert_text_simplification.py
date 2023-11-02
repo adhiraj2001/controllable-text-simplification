@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.preprocessing
 import torch
 import torch.nn as nn
-from google.transliteration import transliterate_word
+# from google.transliteration import transliterate_word
 import klib
 import os
 import csv
@@ -27,14 +27,18 @@ torch.cuda.is_available()
 
 # %%
 
+abs_root = '/ssd_scratch/cvit/adhiraj_deshmukh'
+abs_code = f'{abs_root}/ANLP-Project'
+abs_data = f'{abs_code}/data'
 
 # %%
 #load dataset
 
 colnames = ['source', 'target']
-input_file = "train.tsv"
+# input_file = "train.tsv"
+input_file = f"{abs_data}/train.tsv"
 train = pd.read_csv(input_file, sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
-val = pd.read_csv("valid.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
+val = pd.read_csv(f"{abs_data}/valid.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
 
 # %%
 #data cleaning 
@@ -59,9 +63,9 @@ print(len(val))
 print(len(test))
 
 #save train, val, test
-train.to_csv('/ssd_scratch/cvit/aparna/train.csv', index=False)
-val.to_csv('/ssd_scratch/cvit/aparna/val.csv', index=False)
-test.to_csv('/ssd_scratch/cvit/aparna/test.csv', index=False)
+train.to_csv(f'{abs_data}/train.csv', index=False)
+val.to_csv(f'{abs_data}/val.csv', index=False)
+test.to_csv(f'{abs_data}/test.csv', index=False)
 
 
 # %%
@@ -69,7 +73,7 @@ train.columns
 
 # %%
 #tokenize
-tokenizer = AutoTokenizer.from_pretrained('google/bert_for_seq_generation_L-24_bbc_encoder',cahe_dir='/ssd_scratch/cvit/aparna/bert_google_encoder')
+tokenizer = AutoTokenizer.from_pretrained('google/bert_for_seq_generation_L-24_bbc_encoder',cache_dir='f{abs_root}/bert_google_encoder')
 
 # Load pre-trained XLM model
 #tokenizer = XLMTokenizer.from_pretrained('xlm-mlm-en-2048')
@@ -78,8 +82,6 @@ tokenizer.add_special_tokens({'additional_special_tokens': ['<pad>']})
 tokenizer.add_special_tokens({'additional_special_tokens': ['<s>']})
 tokenizer.add_special_tokens({'additional_special_tokens': ['</s>']})
 tokenizer.add_special_tokens({'additional_special_tokens': ['<unk>']})
-
-
 
 # %%
 train['source']
@@ -119,9 +121,11 @@ def tokenize_df(df):
         #'decoder_attention_mask': target_attention_mask
     }
 
-train = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/train.csv',cache_dir='/ssd_scratch/cvit/aparna/bert_data')
-val = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/val.csv',cache_dir='/ssd_scratch/cvit/aparna/bert_data')
-test = load_dataset('csv', data_files='/ssd_scratch/cvit/aparna/test.csv',cache_dir='/ssd_scratch/cvit/aparna/bert_data')
+train = load_dataset('csv', data_files=f'{abs_data}/train.csv',cache_dir=f'{abs_root}/bert_data')
+val = load_dataset('csv', data_files=f'{abs_data}/val.csv',cache_dir=f'{abs_root}/bert_data')
+test = load_dataset('csv', data_files=f'{abs_data}/test.csv',cache_dir=f'{abs_root}/bert_data')
+                                          
+                                          
 train = train.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
 val = val.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
 test = test.map(tokenize_df, batched=True, batch_size=128,remove_columns=['source','target'])
@@ -150,17 +154,19 @@ os.environ["WANDB_DISABLED"] = "false"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #model =  BartForConditionalGeneration.from_pretrained('bert-base-multilingual-cased')
 
-encoder = BertGenerationEncoder.from_pretrained("google/bert_for_seq_generation_L-24_bbc_encoder",cache_dir='/ssd_scratch/cvit/aparna/bert_google_encoder')
+encoder = BertGenerationEncoder.from_pretrained("google/bert_for_seq_generation_L-24_bbc_encoder",cache_dir=f'{abs_root}/bert_google_encoder')
 
 config = BertGenerationConfig.from_pretrained("google/bert_for_seq_generation_L-24_bbc_encoder")
 config.is_decoder = True
 decoder = BertGenerationDecoder.from_pretrained(
-    "google/bert_for_seq_generation_L-24_bbc_encoder", config=config,cache_dir='/ssd_scratch/cvit/aparna/bert_google_decoder'
+    "google/bert_for_seq_generation_L-24_bbc_encoder", config=config,cache_dir=f'{abs_root}/bert_google_decoder'
 )
 
 
 model = EncoderDecoderModel(encoder=encoder, decoder=decoder).to(device)
-model.config.decoder_start_token_id = tokenizer.pad_token_id
+model.config.decoder_start_token_id = tokenizer.bos_token_id
+model.config.pad_token_id = tokenizer.pad_token_id
+
 # model.encoder.resize_token_embeddings(len(tokenizer))
 # model.decoder.resize_token_embeddings(len(tokenizer))
 
@@ -172,20 +178,22 @@ model.config.decoder_start_token_id = tokenizer.pad_token_id
 
 
 training_args = Seq2SeqTrainingArguments(
-  output_dir = "/ssd_scratch/cvit/aparna/bert_simplification_google",
+  output_dir = f"{abs_root}/bert_simplification_google",
   log_level = "error",
   num_train_epochs = 10,
   learning_rate = 5e-4,
   lr_scheduler_type = "linear",
-  warmup_steps = 90,
+  # warmup_steps = 90,
+  warmup_steps = 0,
   optim = "adafactor",
   weight_decay = 0.01,
   per_device_train_batch_size =2,
   per_device_eval_batch_size = 1,
   gradient_accumulation_steps = 16,
   evaluation_strategy = "steps",
-  eval_steps = 100,
-  predict_with_generate=True,
+  eval_steps = 1,
+  # predict_with_generate=True,
+  predict_with_generate=False,
   generation_max_length = 128,
   save_steps = 500,
   logging_steps = 10,
@@ -208,6 +216,7 @@ trainer = Seq2SeqTrainer(
 trainer.train()
 
 #save model
-trainer.save_model("/ssd_scratch/cvit/aparna/google_bert_simplification_final")
+trainer.save_model(f"{abs_root}/google_bert_simplification_final")
 
 # %%
+
