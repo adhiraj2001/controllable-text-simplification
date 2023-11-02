@@ -1,0 +1,10 @@
+**/.git/
+
+**/__pycache__/
+**/.ipynb_checkpoints/
+**/wandb/
+
+*.zip
+*.xopp
+*.bin
+
