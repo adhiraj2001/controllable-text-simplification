@@ -229,7 +229,7 @@ optimizer = Adafactor(model.parameters(), scale_parameter=True, relative_step=Tr
 lr_scheduler = AdafactorSchedule(optimizer)
 
 for epoch in range(num_epochs):
-
+    
     model.train()
     for batch in train_dataloader:
       print(batch)
@@ -256,7 +256,11 @@ for epoch in range(num_epochs):
       # Compute the loss
       loss = loss_fct(lm_head_output.view(-1, model.config.vocab_size),
                       batch['labels'].view(-1))
-      wandb.log({"train loss":loss.item()})
+      wandb.log({
+         "train_steps/train_loss":loss.item(),
+         "train_steps/epoch":epoch
+         })
+      
       loss.backward() # Update the weights
       optimizer.step() # Notify optimizer that a batch is done.
       lr_scheduler.step() # Notify the scheduler that a ...
@@ -271,12 +275,19 @@ for epoch in range(num_epochs):
             outputs = model(**batch)
 
         loss = outputs.loss
-        wandb.log({"val loss": loss.item()})
+        wandb.log({
+           "eval_steps/val_loss": loss.item(),
+           "eval_steps/epoch":epoch,
+           })
     
     training_loss = training_loss / len( train["train"] )
     validation_loss = validation_loss / len( val["train"])
     print("Epoch {}:\tTraining Loss {:.2f}\t/\tValidation Loss {:.2f}".format(epoch+1, training_loss, validation_loss))
-    wandb.log({"Training Loss": training_loss, "Validation Loss": validation_loss})
+    wandb.log({
+       "epochs/Training Loss": training_loss, 
+       "epochs/Validation Loss": validation_loss, 
+       "epochs/epoch": epoch
+       })
 
 #save model
 model.save_pretrained('/ssd_scratch/cvit/aparna/t5_simplification_custom')

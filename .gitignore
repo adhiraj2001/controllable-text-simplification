@@ -22,4 +22,5 @@ data/input_final.txt
 *.zip
 *.xopp
 *.bin
-
+*.tsv
+*.csv
