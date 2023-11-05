@@ -22,6 +22,12 @@ import klib
 import os
 import csv
 
+from tqdm import tqdm
+import nltk
+nltk.download('punkt')
+
+import string
+
 # %%
 torch.cuda.is_available()
 
@@ -117,16 +123,16 @@ def clean_text(text):
 def preprocess_data(examples):
   texts_cleaned = [clean_text(text) for text in examples["source"]]
   inputs = [prefix + text for text in texts_cleaned]
-  model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
+  model_inputs = tokenizer(inputs, padding="max_length", max_length=max_input_length, truncation=True)
 
   # Setup the tokenizer for targets
   with tokenizer.as_target_tokenizer():
-    labels = tokenizer(examples["target"], max_length=max_target_length, 
+    labels = tokenizer(examples["target"], padding="max_length", max_length=max_target_length, 
                        truncation=True)
 
   model_inputs["labels"] = labels["input_ids"]
   model_inputs["decoder_input_ids"] = labels["input_ids"] 
-  model_inputs["decoder_attention_ids"] = labels["attention_ids"]
+  model_inputs["decoder_attention_mask"] = labels["attention_mask"]
   return model_inputs
 
 train = load_dataset('csv', data_files=f'{abs_data}/train.csv',cache_dir=f'{abs_root}/t5_data')
@@ -189,7 +195,7 @@ training_args = Seq2SeqTrainingArguments(
   warmup_steps = 0,
   optim = "adafactor",
   weight_decay = 0.01,
-  per_device_train_batch_size =2,
+  per_device_train_batch_size = 2,
   per_device_eval_batch_size = 1,
   gradient_accumulation_steps = 16,
   evaluation_strategy = "steps",
@@ -232,10 +238,9 @@ trainer = Seq2SeqTrainer(
     model=model,                         # the instantiated 🤗 Transformers model to be trained
     args=training_args,                  # training arguments, defined above
     train_dataset=train["train"],         # training dataset
-    eval_dataset=val["train"],             # evaluation dataset
+    eval_dataset=train["validation"],             # evaluation dataset
     tokenizer=tokenizer,               # tokenizer
-    #data_collator=DataCollatorForSeq2Seq(tokenizer, model=model), # data collator
-    
+    data_collator=DataCollatorForSeq2Seq(tokenizer, model=model), # data collator
 )
 
 #train
