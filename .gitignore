@@ -1,18 +1,4 @@
-data/train.tsv
-data/valid.tsv
-data/train_unique.txt
-data/valid_source.csv
-data/valid_unique.txt
-data/input1.txt
-data/input2.txt
-data/input3.txt
-data/input4.txt
-data/input5.txt
-data/input6.txt
-data/input7.txt
-data/input8.txt
-data/input9.txt
-data/input_final.txt
+data/
 
 **/__pycache__/
 **/.ipynb_checkpoints/
