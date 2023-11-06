@@ -6,9 +6,9 @@
 
 | Name  | Roll No. |
 | ------------- | ------------- |
+| Aparna Agarwal  | 2021121007 |
+| Shreya Patil  | 2021121009 |
 | Adhiraj Deshmukh  | 2021121012 |
-| Aparna Agarwal  | 2021121008  |
-| Shreya Patil  | 2021121009  |
 
 ## Checkpoints
 
@@ -22,3 +22,4 @@
 - DisSim: https://aclanthology.org/W19-8662/
 - Controllable Sentence Simplification: https://aclanthology.org/2020.lrec-1.577/
 - Controllable Sentence Simplification via Operation Classification: https://aclanthology.org/2022.findings-naacl.161/
+
