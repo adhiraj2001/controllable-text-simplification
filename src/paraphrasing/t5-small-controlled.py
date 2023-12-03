@@ -134,10 +134,9 @@ train["test"] = train["test"].shuffle().select(range(1000))
 # In[ ]:
 
 
-## Load the BART's pre-trained Tokenizer
-from transformers import BartTokenizerFast # 6x Speedup
+from transformers import T5TokenizerFast # 6x Speedup
 
-tokenizer = BartTokenizerFast.from_pretrained('facebook/bart-large-cnn', cache_dir=f'{abs_root}/hf_cache')
+tokenizer = T5TokenizerFast.from_pretrained('t5-small', cache_dir=f'{abs_root}/hf_cache')
 
 
 # In[ ]:
@@ -261,11 +260,11 @@ val_dl = DataLoader(train["validation"], batch_size=batch_size, shuffle=True)
 # In[ ]:
 
 
-from transformers import BartForConditionalGeneration
+from transformers import T5ForConditionalGeneration
 import torch
 
 # Load the model
-model = BartForConditionalGeneration.from_pretrained(f"facebook/bart-large-cnn", cache_dir=f'{abs_root}/hf_cache')
+model = T5ForConditionalGeneration.from_pretrained(f"t5-small", cache_dir=f'{abs_root}/hf_cache')
 
 
 # In[ ]:
@@ -357,9 +356,9 @@ lr_scheduler = get_scheduler (
 
 wandb.init(
     project="ANLP-Project",
-    name="bart-large-cnn-controlled (v2)",
+    name="t5-small-controlled",
     config={
-        "architecture": "BART",
+        "architecture": "T5",
         "dataset": "Wiki-Auto",
         "batch_size": batch_size,
         "epochs": num_epochs,
@@ -441,9 +440,9 @@ for epoch in tqdm(range(num_epochs)):
         best_epoch = epoch + 1
         
         if hasattr(model, 'module'):
-            model.module.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-best")
+            model.module.save_pretrained(f"{abs_root}/t5-small-controlled-best")
         else:
-            model.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-best")
+            model.save_pretrained(f"{abs_root}/t5-small-controlled-best")
     
     wandb.log({
         'epochs/epoch': epoch,
@@ -463,7 +462,10 @@ for epoch in tqdm(range(num_epochs)):
 # In[ ]:
 
 
-model.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-final")
+if hasattr(model, 'module'):
+    model.module.save_pretrained(f"{abs_root}/t5-small-controlled-final")
+else:
+    model.save_pretrained(f"{abs_root}/t5-small-controlled-final")
 
 
 # In[ ]:

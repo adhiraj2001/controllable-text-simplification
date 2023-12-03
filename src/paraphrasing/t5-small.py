@@ -62,8 +62,8 @@ abs_data = f'{abs_code}/data'
 
 colnames = ['source', 'target']
 
-train = pd.read_csv(f"{abs_data}/train_with_parameters.csv")
-val = pd.read_csv(f"{abs_data}/val_with_parameters.csv")
+train = pd.read_csv(f"{abs_data}/train.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
+val = pd.read_csv(f"{abs_data}/valid.tsv", sep="\t", quoting=csv.QUOTE_NONE, encoding='utf-8', header=None, names=colnames)
 
 
 # In[ ]:
@@ -83,9 +83,9 @@ test = test.reset_index(drop=True)
 
 
 #save train, val, test
-train.to_csv(f'{abs_data}/train_control.csv', index=False)
-val.to_csv(f'{abs_data}/val_control.csv', index=False)
-test.to_csv(f'{abs_data}/test_control.csv', index=False)
+train.to_csv(f'{abs_data}/train.csv', index=False)
+val.to_csv(f'{abs_data}/val.csv', index=False)
+test.to_csv(f'{abs_data}/test.csv', index=False)
 
 
 # In[ ]:
@@ -99,13 +99,19 @@ test.to_csv(f'{abs_data}/test_control.csv', index=False)
 
 from datasets import load_dataset
 
-# train = load_dataset('csv', data_files=f'{abs_data}/train.csv')
-# val = load_dataset('csv', data_files=f'{abs_data}/val.csv')
-# test = load_dataset('csv', data_files=f'{abs_data}/test.csv')
+# train = load_dataset('csv', data_files=f'{abs_data}/train.csv',cache_dir=f'{abs_root}/bart_cnn_data')
+# val = load_dataset('csv', data_files=f'{abs_data}/val.csv',cache_dir=f'{abs_root}/bart_cnn_data')
+# test = load_dataset('csv', data_files=f'{abs_data}/test.csv',cache_dir=f'{abs_root}/bart_cnn_data')
 
-train = load_dataset('csv', data_files=f'{abs_data}/train_control.csv')
-val = load_dataset('csv', data_files=f'{abs_data}/val_control.csv')
-test = load_dataset('csv', data_files=f'{abs_data}/test_control.csv')
+train = load_dataset('csv', data_files=f'{abs_data}/train.csv')
+val = load_dataset('csv', data_files=f'{abs_data}/val.csv')
+test = load_dataset('csv', data_files=f'{abs_data}/test.csv')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
@@ -134,25 +140,9 @@ train["test"] = train["test"].shuffle().select(range(1000))
 # In[ ]:
 
 
-## Load the BART's pre-trained Tokenizer
-from transformers import BartTokenizerFast # 6x Speedup
+from transformers import T5TokenizerFast # 6x Speedup
 
-tokenizer = BartTokenizerFast.from_pretrained('facebook/bart-large-cnn', cache_dir=f'{abs_root}/hf_cache')
-
-
-# In[ ]:
-
-
-# tokenizer.add_special_tokens({'additional_special_tokens': ['<sep>']})
-# tokenizer.add_special_tokens({'additional_special_tokens': ['<pad>']})
-# tokenizer.add_special_tokens({'additional_special_tokens': ['<s>']})
-# tokenizer.add_special_tokens({'additional_special_tokens': ['</s>']})
-# tokenizer.add_special_tokens({'additional_special_tokens': ['<unk>']})
-
-for i in range(0,11):
-    tokenizer.add_special_tokens({'additional_special_tokens': [f'<copy_{i * 0.1:.1f}>']})
-    tokenizer.add_special_tokens({'additional_special_tokens': [f'<levsim_{i * 0.1:.1f}>']})
-    tokenizer.add_special_tokens({'additional_special_tokens': [f'<cratio_{i * 0.1:.1f}>']})
+tokenizer = T5TokenizerFast.from_pretrained('t5-small', cache_dir=f'{abs_root}/hf_cache')
 
 
 # In[ ]:
@@ -184,19 +174,9 @@ def clean_text(text):
 # In[ ]:
 
 
-
-
-
-# In[ ]:
-
-
 # Define the function to make the correct data structure
 def process_data_to_model_inputs(batch):
-    # inputs = [prefix + f'\"{clean_text(text)}\"' for text in batch["source"]]
-
-    inputs = []
-    for text, ls, cp, comp in zip(batch["source"], batch["lavenstein_similarity"], batch["copy_ratio"], batch["compression_ratio"]):
-        inputs.append(f"<copy_{cp:.1f}> <levsim_{ls:.1f}> <cratio_{comp:.1f}> {prefix} {clean_text(text)}")
+    inputs = [f'{prefix} \"{clean_text(text)}\"' for text in batch["source"]]
     
     model_inputs = tokenizer(inputs, padding="max_length", max_length=max_input_length, truncation=True)
     
@@ -261,18 +241,17 @@ val_dl = DataLoader(train["validation"], batch_size=batch_size, shuffle=True)
 # In[ ]:
 
 
-from transformers import BartForConditionalGeneration
+from transformers import T5ForConditionalGeneration
 import torch
 
 # Load the model
-model = BartForConditionalGeneration.from_pretrained(f"facebook/bart-large-cnn", cache_dir=f'{abs_root}/hf_cache')
+model = T5ForConditionalGeneration.from_pretrained(f"t5-small", cache_dir=f'{abs_root}/hf_cache')
 
 
 # In[ ]:
 
 
-## Incorporate additional tokens
-model.resize_token_embeddings(len(tokenizer))
+# model.resize_token_embeddings(len(tokenizer))
 
 
 # In[ ]:
@@ -305,7 +284,7 @@ model.resize_token_embeddings(len(tokenizer))
 if torch.cuda.device_count() > 1:
     print("Using", torch.cuda.device_count(), "GPUs.", flush=True)
     model = nn.DataParallel(model)
-    # model = nn.DataParallel(model, device_ids=[2, 3])
+    # model = nn.DataParallel(model, device_ids=[0, 1])
 
 model = model.to(device)
 print(model)
@@ -327,7 +306,7 @@ learning_rate = 1e-3 # [5e-5, 5e-4]
 lr_scheduler_type = "linear" 
 # lr_scheduler_type = "reduce_lr_on_plateau"
 
-warmup_steps = int(0.1 * num_training_steps)
+warmup_steps = int(0.1 *  num_training_steps)
 
 ## The loss function
 loss_fct =  nn.CrossEntropyLoss(ignore_index=-100)
@@ -357,9 +336,9 @@ lr_scheduler = get_scheduler (
 
 wandb.init(
     project="ANLP-Project",
-    name="bart-large-cnn-controlled (v2)",
+    name="t5-small",
     config={
-        "architecture": "BART",
+        "architecture": "T5",
         "dataset": "Wiki-Auto",
         "batch_size": batch_size,
         "epochs": num_epochs,
@@ -430,8 +409,8 @@ for epoch in tqdm(range(num_epochs)):
         
         validation_loss += loss.item()
     
-    training_loss = training_loss / len(train["train"] )
-    validation_loss = validation_loss / len(val["train"])
+    training_loss = training_loss / len(train_dl)
+    validation_loss = validation_loss / len(val_dl)
     
     print("Epoch {}:\tTraining Loss {:.2f}\t/\tValidation Loss {:.2f}".format(epoch+1, training_loss, validation_loss))
     
@@ -441,9 +420,9 @@ for epoch in tqdm(range(num_epochs)):
         best_epoch = epoch + 1
         
         if hasattr(model, 'module'):
-            model.module.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-best")
+            model.module.save_pretrained(f"{abs_root}/t5-small-best")
         else:
-            model.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-best")
+            model.save_pretrained(f"{abs_root}/t5-small-best")
     
     wandb.log({
         'epochs/epoch': epoch,
@@ -463,7 +442,10 @@ for epoch in tqdm(range(num_epochs)):
 # In[ ]:
 
 
-model.save_pretrained(f"{abs_root}/bart-large-cnn-controlled-final")
+if hasattr(model, 'module'):
+    model.module.save_pretrained(f"{abs_root}/t5-small-final")
+else:
+    model.save_pretrained(f"{abs_root}/t5-small-final")
 
 
 # In[ ]:

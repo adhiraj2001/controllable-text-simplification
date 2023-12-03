@@ -408,12 +408,12 @@ for epoch in tqdm(range(num_epochs)):
         with torch.no_grad():
             outputs = model(**batch)
         
-        loss = outputs.loss
+        loss = torch.mean(outputs.loss)
         
         validation_loss += loss.item()
     
-    training_loss = training_loss / len(train["train"] )
-    validation_loss = validation_loss / len(val["train"])
+    training_loss = training_loss / len(train_dl)
+    validation_loss = validation_loss / len(val_dl)
     
     print("Epoch {}:\tTraining Loss {:.2f}\t/\tValidation Loss {:.2f}".format(epoch+1, training_loss, validation_loss))
     
