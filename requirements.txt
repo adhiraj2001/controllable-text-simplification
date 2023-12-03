@@ -1,0 +1,12 @@
+# numpy
+# pandas
+
+# pip3 install torch --index-url https://download.pytorch.org/whl/cu118
+
+transformers==4.21.3
+datasets
+
+scikit-learn
+nltk
+tqdm
+wandb
