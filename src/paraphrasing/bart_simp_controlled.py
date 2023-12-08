@@ -10,7 +10,7 @@ import csv
 import json
 import yaml
 import string
-
+import datasets
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -79,7 +79,7 @@ import klib
 # In[ ]:
 
 
-abs_root = '/ssd_scratch/cvit/adhiraj_deshmukh'
+abs_root = '/ssd_scratch/cvit/apanra'
 abs_code = f'{abs_root}/ANLP-Project'
 abs_data = f'{abs_code}/data'
 
@@ -99,8 +99,8 @@ input_file = f"{abs_data}/train.tsv"
 # train = pd.read_csv("../../data/10/train_with_parameters.csv")
 # val = pd.read_csv("../../data/10/val_with_parameters.csv")
 
-train = pd.read_csv(f"{abs_data}/train_with_parameters.csv")
-val = pd.read_csv(f"{abs_data}/val_with_parameters.csv")
+train = pd.read_csv("train_with_parameters.csv")
+val = pd.read_csv("val_with_parameters.csv")
 
 
 # In[ ]:
@@ -185,11 +185,11 @@ tokenizer = BartTokenizer.from_pretrained('facebook/bart-base', cache_dir=f'{abs
 
 # Load pre-trained XLM model
 #tokenizer = XLMTokenizer.from_pretrained('xlm-mlm-en-2048')
-tokenizer.add_special_tokens({'additional_special_tokens': ['<sep>']})
-tokenizer.add_special_tokens({'additional_special_tokens': ['<pad>']})
-tokenizer.add_special_tokens({'additional_special_tokens': ['<s>']})
-tokenizer.add_special_tokens({'additional_special_tokens': ['</s>']})
-tokenizer.add_special_tokens({'additional_special_tokens': ['<unk>']})
+# tokenizer.add_special_tokens({'additional_special_tokens': ['<sep>']})
+# tokenizer.add_special_tokens({'additional_special_tokens': ['<pad>']})
+# tokenizer.add_special_tokens({'additional_special_tokens': ['<s>']})
+# tokenizer.add_special_tokens({'additional_special_tokens': ['</s>']})
+# tokenizer.add_special_tokens({'additional_special_tokens': ['<unk>']})
 
 for i in range(0,11):
   tokenizer.add_special_tokens({'additional_special_tokens': ['<copy_{}>'.format(i * 0.1)]})
@@ -369,14 +369,14 @@ lr_scheduler = get_scheduler (
 # In[ ]:
 
 
-# Freeze the first n-2 layers
-for i in range(len(model.model.encoder.layers) - 2):
-    for param in model.model.encoder.layers[i].parameters():
-        param.requires_grad = False
+# # Freeze the first n-2 layers
+# for i in range(len(model.model.encoder.layers) - 2):
+#     for param in model.model.encoder.layers[i].parameters():
+#         param.requires_grad = False
 
-for i in range(len(model.model.decoder.layers) - 2):
-    for param in model.model.decoder.layers[i].parameters():
-        param.requires_grad = False
+# for i in range(len(model.model.decoder.layers) - 2):
+#     for param in model.model.decoder.layers[i].parameters():
+#         param.requires_grad = False
 
 
 # In[ ]:
@@ -415,76 +415,76 @@ wandb.init(
 ## This process can (and should be!) be done by 
 ## calling the model(**batch) to get the lm_head_output directly
 
-curr_steps = 0
+# curr_steps = 0
 
-for epoch in tqdm(range(num_epochs)):
+# for epoch in tqdm(range(num_epochs)):
 
-    training_loss = 0
-    validation_loss = 0
+#     training_loss = 0
+#     validation_loss = 0
     
-    model.train()
+#     model.train()
     
-    for batch in train_dl:
-        curr_steps += 1
+#     for batch in train_dl:
+#         curr_steps += 1
         
-        batch = {k: v.to(device) for k, v in batch.items()}
+#         batch = {k: v.to(device) for k, v in batch.items()}
         
-        # Get the "input's representation"
-        encoder_output = the_encoder(input_ids = batch['input_ids'],
-                                   attention_mask = batch['attention_mask'])
+#         # Get the "input's representation"
+#         encoder_output = the_encoder(input_ids = batch['input_ids'],
+#                                    attention_mask = batch['attention_mask'])
         
-        # Pass the representation + the target summary to the decoder
-        decoder_output = the_decoder(input_ids=batch['decoder_input_ids'],
-                                   attention_mask=batch['decoder_attention_mask'],
-                                   encoder_hidden_states=encoder_output[0],
-                                   encoder_attention_mask=batch['attention_mask'])
+#         # Pass the representation + the target summary to the decoder
+#         decoder_output = the_decoder(input_ids=batch['decoder_input_ids'],
+#                                    attention_mask=batch['decoder_attention_mask'],
+#                                    encoder_hidden_states=encoder_output[0],
+#                                    encoder_attention_mask=batch['attention_mask'])
         
-        # Use the last linear layer to predict the next token
-        decoder_output = decoder_output.last_hidden_state
-        lm_head_output = last_linear_layer(decoder_output)
+#         # Use the last linear layer to predict the next token
+#         decoder_output = decoder_output.last_hidden_state
+#         lm_head_output = last_linear_layer(decoder_output)
         
-        # Compute the loss
-        loss = loss_fct(lm_head_output.view(-1, model.config.vocab_size),
-                      batch['labels'].view(-1))
+#         # Compute the loss
+#         loss = loss_fct(lm_head_output.view(-1, model.config.vocab_size),
+#                       batch['labels'].view(-1))
         
-        training_loss += loss.item()
+#         training_loss += loss.item()
         
-        wandb.log({
-          'steps/step': curr_steps,
-          'steps/epoch': epoch,
-          'steps/loss': loss.item(),
-        })
+#         wandb.log({
+#           'steps/step': curr_steps,
+#           'steps/epoch': epoch,
+#           'steps/loss': loss.item(),
+#         })
         
-        loss.backward() # Update the weights
-        optimizer.step() # Notify optimizer that a batch is done.
-        lr_scheduler.step() # Notify the scheduler that a ...
-        optimizer.zero_grad() # Reset the optimer
+#         loss.backward() # Update the weights
+#         optimizer.step() # Notify optimizer that a batch is done.
+#         lr_scheduler.step() # Notify the scheduler that a ...
+#         optimizer.zero_grad() # Reset the optimer
 
 
-    model.eval()
-    for batch in val_dl:
-        batch = {k: v.to(device) for k, v in batch.items()}
+#     model.eval()
+#     for batch in val_dl:
+#         batch = {k: v.to(device) for k, v in batch.items()}
             
-        with torch.no_grad():
-            outputs = model(**batch)
+#         with torch.no_grad():
+#             outputs = model(**batch)
         
-        loss = outputs.loss
+#         loss = outputs.loss
         
-        validation_loss += loss.item()
+#         validation_loss += loss.item()
     
-    training_loss = training_loss / len(train["train"] )
-    validation_loss = validation_loss / len(val["train"])
+#     training_loss = training_loss / len(train["train"] )
+#     validation_loss = validation_loss / len(val["train"])
     
-    print("Epoch {}:\tTraining Loss {:.2f}\t/\tValidation Loss {:.2f}".format(epoch+1, training_loss, validation_loss))
+#     print("Epoch {}:\tTraining Loss {:.2f}\t/\tValidation Loss {:.2f}".format(epoch+1, training_loss, validation_loss))
     
-    wandb.log({
-        'epochs/epoch': epoch,
-        'epochs/train_loss': training_loss,
-        'epochs/val_loss': validation_loss,
-    })
+#     wandb.log({
+#         'epochs/epoch': epoch,
+#         'epochs/train_loss': training_loss,
+#         'epochs/val_loss': validation_loss,
+#     })
 
 
-# In[ ]:
+# # In[ ]:
 
 
 
@@ -495,9 +495,79 @@ for epoch in tqdm(range(num_epochs)):
 # In[ ]:
 
 
-model.save_pretrained(f"{abs_root}/bart-controlled-final")
+training_args = Seq2SeqTrainingArguments(
+    output_dir="/ssd_scratch/cvit/aparna/control_bart",
+    num_train_epochs=1,  # demo
+    do_train=True,
+    do_eval=True,
+    per_device_train_batch_size=4,  # demo
+    per_device_eval_batch_size=4,
+    # learning_rate=3e-05,
+    warmup_steps=500,
+    weight_decay=0.1,
+    label_smoothing_factor=0.1,
+    predict_with_generate=True,
+    logging_dir="logs",
+    logging_steps=50,
+    save_total_limit=3,
+
+)
+
+def postprocess_text(preds, labels):
+    preds = [pred.strip() for pred in preds]
+    labels = [label.strip() for label in labels]
+
+    # rougeLSum expects newline after each sentence
+    preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
+    labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
+
+    return preds, labels
 
 
+metric = datasets.load_metric("./rouge.py")
+
+
+data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+def compute_metrics(eval_preds):
+    preds, labels = eval_preds
+    if isinstance(preds, tuple):
+        preds = preds[0]
+    decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
+    # Replace -100 in the labels as we can't decode them.
+    labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+    # Some simple post-processing
+    decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+
+    result = metric.compute(
+        predictions=decoded_preds, references=decoded_labels, use_stemmer=True
+    )
+    # Extract a few results from ROUGE
+    result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
+
+    prediction_lens = [
+        np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds
+    ]
+    result["gen_len"] = np.mean(prediction_lens)
+    result = {k: round(v, 4) for k, v in result.items()}
+    return result
+
+trainer = Seq2SeqTrainer(
+    model=model,
+    args=training_args,
+    data_collator=data_collator,
+    train_dataset=train["train"],
+    eval_dataset=train["validation"],
+    tokenizer=tokenizer,
+    compute_metrics=compute_metrics,
+)
+trainer.evaluate()
+
+trainer.train()
+trainer.evaluate()
+
+trainer.save_model("/ssd_scratch/cvit/aparna/controled_bart")
 # In[ ]:
 
 

@@ -17,6 +17,8 @@ from sklearn.model_selection import train_test_split
 import sklearn.preprocessing
 import torch
 import torch.nn as nn
+#shift token right  modeling_bart.shift_tokens_right
+from transformers.models.bart.modeling_bart import shift_tokens_right
 # from google.transliteration import transliterate_word
 import klib
 import os
@@ -107,7 +109,6 @@ print('Token IDs: ', tokenizer.convert_tokens_to_ids(tokenizer.tokenize(train['s
 # %%
 maxlen = 512
 
-prefix = "summarize: "
 max_input_length = 512
 max_target_length = 64
 
@@ -122,12 +123,14 @@ def clean_text(text):
 
 def preprocess_data(examples):
   texts_cleaned = [clean_text(text) for text in examples["source"]]
-  inputs = [prefix + text for text in texts_cleaned]
-  model_inputs = tokenizer(inputs, padding="max_length", max_length=max_input_length, truncation=True)
+  #inputs = [prefix + text for text in texts_cleaned]
+  model_inputs = tokenizer(texts_cleaned, max_length=max_input_length,  pad_to_max_length=True,
+        truncation=True,
+        padding="max_length")
 
   # Setup the tokenizer for targets
   with tokenizer.as_target_tokenizer():
-    labels = tokenizer(examples["target"], padding="max_length", max_length=max_target_length, 
+    labels = tokenizer(examples["target"],pad_to_max_length=True, padding="max_length", max_length=max_target_length, 
                        truncation=True)
 
   model_inputs["labels"] = labels["input_ids"]
